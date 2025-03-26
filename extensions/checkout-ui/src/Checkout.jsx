@@ -83,15 +83,21 @@ function Extension() {
   const line = useCartLineTarget();
   const applyCartLineChange = useApplyCartLinesChange();
   const [quantity, setQuantity] = useState(line.quantity);
-  const [giftWrap, setGiftWrap] = useState(false); // Add gift wrap state
+
+  const initialGiftWrap = line.attributes.some(
+    (attribute) => attribute.key === 'Gift Wrap' && attribute.value === 'Yes'
+  );
+  const [giftWrap, setGiftWrap] = useState(initialGiftWrap); 
 
   const debouncedUpdateCart = useCallback(
     debounce(async (lineId, newQuantity, includeGiftWrap) => {
       try {
-        
-        const attributes = includeGiftWrap 
+        const filteredAttributes = line.attributes.filter(
+          (attribute) => attribute.key !== 'Gift Wrap'
+        );
+        const attributes =[...filteredAttributes,...(includeGiftWrap 
           ? [{ key: 'Gift Wrap', value: 'Yes' }]
-          : [];
+          : [])];
 
         await applyCartLineChange({
           type: 'updateCartLine',
@@ -148,3 +154,5 @@ function Extension() {
     </BlockStack>
   );
 }
+
+
